@@ -44,6 +44,8 @@ public:
     void matchChinese(QString pinyin);//根据输入的拼音匹配中文
     void displayCandidateWord(int page);//显示指定页的候选词
 
+    void setInputText(QString inputText);//设置输入缓冲区行编辑框文本
+
 signals:
     void sendText(QString text);//以信号的形式将输入文本发出去
 public slots:

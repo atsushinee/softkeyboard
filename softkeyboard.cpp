@@ -30,11 +30,12 @@ SoftKeyboard::SoftKeyboard(QWidget *parent) : QWidget(parent)
     this->initKeyboardStyle(0);
     //整体垂直布局
     globalVLayout = new QVBoxLayout(this);
+    globalVLayout->setMargin(2);
     globalVLayout->setSpacing(0);
     globalVLayout->addWidget(textBufferArea,1);//布局中添加部件，并设置伸缩比例关系
     globalVLayout->addStretch(1);
     globalVLayout->addWidget(inputDisplayArea,1);
-    globalVLayout->addWidget(keyBoardArea,4);
+    globalVLayout->addWidget(keyBoardArea,5);
 
     skinNum = 0;
     isENInput = true;//初始化为英文输入
@@ -197,13 +198,25 @@ void SoftKeyboard::initStyleSheet()
                            <<"background-color:#89C8E7;color:black;"
                            <<"background-color:#F8859F;color:black;";
     //普通按键的样式 border-radius:10px;
-    commonKeyStyle<<"background-color:gray;border-radius:4px"
-                           <<"background-color:#D0DFF0;border-radius:4px"
-                           <<"background-color:#F6CED6;border-radius:10px";
+    commonKeyStyle<<"QPushButton{background-color:gray;border-radius:4px;}"//正常样式
+                    "QPushButton:pressed{background-color:orange;border-radius:4px;}"//按下样式
+                    "QPushButton:focus{outline:none;}"//去除虚线框
+                           <<"QPushButton{background-color:#D0DFF0;border-radius:4px;}"
+                             "QPushButton:pressed{background-color:orange;border-radius:4px;}"
+                             "QPushButton:focus{outline:none;}"//去除虚线框
+                           <<"QPushButton{background-color:#F6CED6;border-radius:10px;}"
+                             "QPushButton:pressed{background-color:orange;border-radius:10px;}"
+                             "QPushButton:focus{outline:none;}";//去除虚线框
     //特殊按键的样式
-    specialKeyStyle<<"background-color:#5D3F3F;border-radius:2px"
-                          <<"background-color:#94B6EF;border-radius:2px"
-                          <<"background-color:#FFA3B8;border-radius:8px";
+    specialKeyStyle<<"QPushButton{background-color:#5D3F3F;border-radius:2px;}"
+                     "QPushButton:pressed{background-color:orange;border-radius:2px;}"
+                     "QPushButton:focus{outline:none;}"//去除虚线框
+                          <<"QPushButton{background-color:#94B6EF;border-radius:2px;}"
+                             "QPushButton:pressed{background-color:orange;border-radius:2px;}"
+                            "QPushButton:focus{outline:none;}"//去除虚线框
+                          <<"QPushButton{background-color:#FFA3B8;border-radius:8px;}"
+                             "QPushButton:pressed{background-color:orange;border-radius:8px;}"
+                            "QPushButton:focus{outline:none;}";//去除虚线框
 }
 /*
  *@author:  缪庆瑞
@@ -222,19 +235,24 @@ void SoftKeyboard::initFirstArea()
     lineEdit = new QLineEdit();
     lineEdit->setFont(font);
     lineEdit->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Preferred);
+    QString btnStyleSheet("QPushButton{background-color:lightGray;border-radius:4px;}"//正常样式
+                          "QPushButton:pressed{background-color:orange;border-radius:4px;}"//按下样式
+                          "QPushButton:focus{outline:none;}");//去除虚线框
     okBtn = new QPushButton();
     okBtn->setFont(font);
     okBtn->setSizePolicy(QSizePolicy::Preferred,QSizePolicy::Preferred);
     okBtn->setText(tr("确定"));
+    okBtn->setStyleSheet(btnStyleSheet);
     connect(okBtn,SIGNAL(clicked()),this,SLOT(okBtnSlot()));
     quitBtn = new QPushButton();
     quitBtn->setFont(font);
     quitBtn->setSizePolicy(QSizePolicy::Preferred,QSizePolicy::Preferred);
     quitBtn->setText(tr("退出"));
+    quitBtn->setStyleSheet(btnStyleSheet);
     connect(quitBtn,SIGNAL(clicked()),this,SLOT(quitBtnSlot()));
-    hBoxLayout->addWidget(lineEdit);
-    hBoxLayout->addWidget(okBtn);
-    hBoxLayout->addWidget(quitBtn);
+    hBoxLayout->addWidget(lineEdit,4);
+    hBoxLayout->addWidget(quitBtn,1);
+    hBoxLayout->addWidget(okBtn,1);
 }
 /*
  *@author:  缪庆瑞
@@ -304,7 +322,6 @@ void SoftKeyboard::initThirdArea()
     initSpecialBtn();//初始化特殊按键
     keyBoardArea = new QWidget();
     //keyBoardArea->setStyleSheet("background-color:black;");
-    QVBoxLayout *vBoxlayout = new QVBoxLayout(keyBoardArea);
     QHBoxLayout *firstRowHLayout = new QHBoxLayout();
     for(int i=0;i<10;i++)//布局第一排按键 10个数字
     {
@@ -338,6 +355,8 @@ void SoftKeyboard::initThirdArea()
     fifthRowHLayout->addWidget(chOrEnBtn,1);
     fifthRowHLayout->addWidget(enterBtn,2);
 
+    QVBoxLayout *vBoxlayout = new QVBoxLayout(keyBoardArea);
+    vBoxlayout->setMargin(8);
     vBoxlayout->addLayout(firstRowHLayout);
     vBoxlayout->addLayout(secondRowHLayout);
     vBoxlayout->addLayout(thirdRowHLayout);
@@ -424,7 +443,7 @@ void SoftKeyboard::initSpecialBtn()
     chOrEnBtn = new QPushButton();
     chOrEnBtn->setFont(font);
     chOrEnBtn->setSizePolicy(QSizePolicy::Preferred,QSizePolicy::Preferred);
-    chOrEnBtn->setText(tr("  英  "));
+    chOrEnBtn->setText(tr("   英   "));
     //chOrEnBtn->setStyleSheet("background-color:gray;");
     connect(chOrEnBtn,SIGNAL(clicked()),this,SLOT(changeChEnSlot()));
 
@@ -588,6 +607,15 @@ void SoftKeyboard::displayCandidateWord(int page)
             candidateWordBtn[i]->setText("");//清除上一页的缓存
         }
     }
+}
+/*
+ *@author:  缪庆瑞
+ *@date:    2017.5.5
+ *@brief:   设置输入缓存区行编辑框的文本
+ */
+void SoftKeyboard::setInputText(QString inputText)
+{
+    lineEdit->setText(inputText);
 }
 /*
  *@author:  缪庆瑞
@@ -849,7 +877,7 @@ void SoftKeyboard::changeChEnSlot()
     if(isENInput)
     {
         isENInput = false;//切换为中文输入
-        chOrEnBtn->setText(tr("  中  "));
+        chOrEnBtn->setText(tr("   中   "));
         commaBtn->setText(tr("，"));
         periodBtn->setText(tr("。"));
         if(isLetterInput)//字母界面 切换到中文输入时，默认小写
@@ -865,7 +893,7 @@ void SoftKeyboard::changeChEnSlot()
     else
     {
         isENInput = true;//切换为英文输入
-        chOrEnBtn->setText(tr("  英  "));
+        chOrEnBtn->setText(tr("英"));
         commaBtn->setText(",");
         periodBtn->setText(".");
         if(!isLetterInput)//字符界面
