@@ -18,5 +18,4 @@ SOURCES += main.cpp\
 HEADERS  += \
     softkeyboard.h
 
-FORMS += \
-    form.ui
+FORMS +=
